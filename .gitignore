@@ -1,0 +1,93 @@
+# Dependencies
+.yarn/
+bun.lockb
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Production builds
+out/
+dist/
+build/
+.next/
+.nuxt/
+.output/
+.output-v2/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor files
+*~
+.vs/
+*.swp
+*.swo
+.idea/
+.vscode/
+.project
+.settings/
+
+# OS generated files
+._*
+.Trashes
+Thumbs.db
+.DS_Store
+.DS_Store?
+.directory
+desktop.ini
+ehthumbs.db
+.Spotlight-V100
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Vite specific
+.vite/
+
+# Bun specific
+.bun/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Local configuration files for VS Code
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Project specific files
+dist-ssr/
+*.local
+package-lock.json
+
+# LLM specific
+PERF.md
+AGENTS.md
+ONBOARDING.md
