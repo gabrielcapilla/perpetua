@@ -14,7 +14,14 @@ export const FpsCounter: React.FC = () => {
     live: false,
   });
 
-  const frameTimesRef = useRef<number[]>([]);
+  const FRAME_BUFFER_SIZE = 60;
+  const frameTimesRef = useRef<Float32Array | null>(null);
+  if (frameTimesRef.current === null) {
+    frameTimesRef.current = new Float32Array(FRAME_BUFFER_SIZE);
+  }
+  const frameHeadRef = useRef<number>(0);
+  const frameCountRef = useRef<number>(0);
+  const frameSumRef = useRef<number>(0);
   const lastTimestampRef = useRef<number>(performance.now());
   const lastDisplayUpdateRef = useRef<number>(performance.now());
   const rafIdRef = useRef<number>(0);
@@ -56,18 +63,23 @@ export const FpsCounter: React.FC = () => {
       }
 
       if (delta > 0) {
-        const buffer = frameTimesRef.current;
-        buffer.push(delta < 500 ? delta : 500);
-        if (buffer.length > 60) {
-          buffer.shift();
+        const buf = frameTimesRef.current as Float32Array;
+        const head = frameHeadRef.current;
+        const capped = delta < 500 ? delta : 500;
+        if (frameCountRef.current >= FRAME_BUFFER_SIZE) {
+          frameSumRef.current -= buf[head];
+        } else {
+          frameCountRef.current++;
         }
+        buf[head] = capped;
+        frameSumRef.current += capped;
+        frameHeadRef.current = (head + 1) % FRAME_BUFFER_SIZE;
       }
 
       if (timestamp - lastDisplayUpdateRef.current >= 250) {
-        const buffer = frameTimesRef.current;
-        if (buffer.length > 0) {
-          const avgDelta =
-            buffer.reduce((sum, val) => sum + val, 0) / buffer.length;
+        const count = frameCountRef.current;
+        if (count > 0) {
+          const avgDelta = frameSumRef.current / count;
           const currentFps = Math.round(1000 / avgDelta);
           setFpsData({
             fps: currentFps,

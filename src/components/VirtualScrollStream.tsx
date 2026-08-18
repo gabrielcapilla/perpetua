@@ -20,18 +20,22 @@ export const VirtualScrollStream: React.FC<VirtualScrollStreamProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const [paragraphs, setParagraphs] = useState<string[]>(() => {
-    const initial: string[] = [];
-    const totalCount = BATCH_SIZE * INITIAL_BATCHES;
-    for (let i = 0; i < totalCount; i++) {
-      const tokenCount = generateParagraphTokenSequence(
-        i,
-        styleMode,
-        SCRATCH_TOKENS,
-      );
-      initial.push(
-        decodeTokensToParagraphText(SCRATCH_TOKENS, tokenCount, styleMode),
-      );
+  const [pages, setPages] = useState<string[][]>(() => {
+    const initial: string[][] = [];
+    for (let b = 0; b < INITIAL_BATCHES; b++) {
+      const page: string[] = [];
+      for (let i = 0; i < BATCH_SIZE; i++) {
+        const currentIdx = b * BATCH_SIZE + i;
+        const tokenCount = generateParagraphTokenSequence(
+          currentIdx,
+          styleMode,
+          SCRATCH_TOKENS,
+        );
+        page.push(
+          decodeTokensToParagraphText(SCRATCH_TOKENS, tokenCount, styleMode),
+        );
+      }
+      initial.push(page);
     }
     return initial;
   });
@@ -59,7 +63,7 @@ export const VirtualScrollStream: React.FC<VirtualScrollStreamProps> = ({
     }
 
     nextIndexRef.current = start + BATCH_SIZE;
-    setParagraphs((prev) => [...prev, ...newBatch]);
+    setPages((prev) => [...prev, newBatch]);
     isGeneratingRef.current = false;
   }, [styleMode]);
 
@@ -105,17 +109,24 @@ export const VirtualScrollStream: React.FC<VirtualScrollStreamProps> = ({
         aria-readonly="true"
         data-locked="true"
       >
-        {paragraphs.map((text, idx) => (
-          <p
-            key={idx}
-            id={`p-${idx}`}
-            contentEditable={false}
-            aria-readonly="true"
-            data-locked="true"
-            className="text-lg leading-relaxed text-[#eeeeec] font-serif mb-8 text-justify antialiased select-text"
-          >
-            {text}
-          </p>
+        {pages.map((page, pageIdx) => (
+          <React.Fragment key={pageIdx}>
+            {page.map((text, i) => {
+              const idx = pageIdx * BATCH_SIZE + i;
+              return (
+                <p
+                  key={idx}
+                  id={`p-${idx}`}
+                  contentEditable={false}
+                  aria-readonly="true"
+                  data-locked="true"
+                  className="text-lg leading-relaxed text-[#eeeeec] font-serif mb-8 text-justify antialiased select-text"
+                >
+                  {text}
+                </p>
+              );
+            })}
+          </React.Fragment>
         ))}
       </div>
     </div>

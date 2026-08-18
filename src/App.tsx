@@ -4,6 +4,11 @@ import { MetroCubeStream } from "./components/MetroCubeStream";
 import { FpsCounter } from "./components/FpsCounter";
 import { TextStyleMode, VisualViewMode } from "./types";
 
+const KEY_TO_MODE: Partial<Record<string, VisualViewMode>> = {
+  KeyM: VisualViewMode.METRO_CUBES,
+  KeyT: VisualViewMode.TEXT_STREAM,
+};
+
 export default function App() {
   const [viewMode, setViewMode] = useState<VisualViewMode>(
     VisualViewMode.TEXT_STREAM,
@@ -16,13 +21,8 @@ export default function App() {
         e.target instanceof HTMLTextAreaElement
       )
         return;
-      if (e.key === "m" || e.key === "M") {
-        setViewMode((prev) =>
-          prev === VisualViewMode.TEXT_STREAM
-            ? VisualViewMode.METRO_CUBES
-            : VisualViewMode.TEXT_STREAM,
-        );
-      }
+      const mode = KEY_TO_MODE[e.code];
+      if (mode !== undefined) setViewMode(mode);
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -48,7 +48,7 @@ export default function App() {
               ? "bg-[#3e8ae5] text-white font-semibold shadow-sm"
               : "text-[#919190] hover:text-[#eeeeec]"
           }`}
-          title="Switch to Endless Text Stream"
+          title="Switch to Endless Text Stream (Press 'T')"
         >
           T
         </button>
