@@ -2,6 +2,8 @@
 
 A high-precision scroll testing application: two procedurally generated infinite streams — lorem-style text and metro cubes — plus a live FPS/frame-time widget. Built for in-depth mouse-scrolling testing.
 
+Live preview: <https://perpetua.edgeone.dev/>
+
 ## Tech stack
 
 - React 19 + TypeScript
