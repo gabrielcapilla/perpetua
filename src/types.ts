@@ -22,4 +22,4 @@ export const PARA_METRIC_SENTENCE_COUNT = 2;
 export const PARA_METRIC_ACCENT_TYPE = 3;
 export const PARA_METRIC_BUFFER_SIZE = 4;
 
-export const APP_BUILD = "2026-08-18-v6";
+export const APP_BUILD = "2026-08-19-v7";

@@ -206,20 +206,20 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
       onScroll={handleScroll}
       onDragStart={(e) => e.preventDefault()}
       onDrop={(e) => e.preventDefault()}
-      className="relative w-full h-full overflow-y-auto overflow-x-hidden bg-[#2d2d2d] text-[#eeeeec] focus:outline-none select-none"
+      className="relative w-full h-full overflow-y-auto overflow-x-hidden bg-[#000000] text-[#e6edf3] focus:outline-none select-none"
       tabIndex={0}
       contentEditable={false}
-      aria-readonly="true"
+      
       data-locked="true"
       style={{
         scrollbarWidth: "thin",
-        scrollbarColor: "rgb(76, 76, 76) rgb(45, 45, 45)",
+        scrollbarColor: "rgb(48, 54, 61) rgb(0, 0, 0)",
       }}
     >
       <div
         className="max-w-6xl mx-auto p-8"
         contentEditable={false}
-        aria-readonly="true"
+        
         data-locked="true"
       >
         <div style={{ height: gaps.top }} aria-hidden="true" />
@@ -239,7 +239,7 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
                 key={breaks[rowIdx]}
                 className={`grid ${gridCols} gap-3 auto-rows-[140px]`}
                 contentEditable={false}
-                aria-readonly="true"
+                
                 data-locked="true"
               >
                 {(() => {
@@ -265,7 +265,7 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
                         key={idx}
                         id={`metro-cube-${idx}`}
                         contentEditable={false}
-                        aria-readonly="true"
+                        
                         data-locked="true"
                         className={`relative p-3.5 flex flex-col justify-between transition-transform duration-100 active:scale-[0.98] cursor-default select-none shadow-sm ${
                           span === 2 ? "col-span-2" : "col-span-1"

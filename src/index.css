@@ -1,12 +1,23 @@
 @import "tailwindcss";
 
+@font-face {
+    font-family: "Mona Sans";
+    src: url("/fonts/mona-sans-400-normal.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+}
+
+@theme {
+    --font-mona: "Mona Sans", sans-serif;
+}
+
 :root {
-    --color-view-bg: rgb(45, 45, 45);
-    --color-view-fg: rgb(238, 238, 236);
-    --color-selection-bg: rgb(62, 138, 229);
+    --color-view-bg: rgb(0, 0, 0);
+    --color-view-fg: rgb(230, 237, 243);
+    --color-selection-bg: rgb(31, 111, 235);
     --color-selection-fg: rgb(255, 255, 255);
-    --color-scrollbar-thumb: rgb(76, 76, 76);
-    --color-scrollbar-track: rgb(45, 45, 45);
+    --color-scrollbar-thumb: rgb(48, 54, 61);
+    --color-scrollbar-track: rgb(0, 0, 0);
 }
 
 ::selection {
@@ -28,5 +39,5 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgb(80, 149, 232);
+    background: rgb(110, 118, 129);
 }

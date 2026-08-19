@@ -8,14 +8,14 @@ import {
 import { xorShift32 } from "./proceduralTextEngine";
 
 export const METRO_COLOR_CLASSES: readonly string[] = Object.freeze([
-  "bg-[#3e8ae5] text-white",
-  "bg-[#353535] text-[#eeeeec] border border-[#4c4c4c]",
-  "bg-[#26ab62] text-white",
-  "bg-[#f57900] text-white",
-  "bg-[#323232] text-[#eeeeec] border border-[#4c4c4c]",
-  "bg-[#277ce2] text-white",
-  "bg-[#e6333b] text-white",
-  "bg-[#4c4c4c] text-[#eeeeec] border border-[#5a5a5a]",
+  "bg-[#1f6feb] text-white",
+  "bg-[#161b22] text-[#e6edf3] border border-[#30363d]",
+  "bg-[#238636] text-white",
+  "bg-[#9e6a03] text-white",
+  "bg-[#21262d] text-[#e6edf3] border border-[#30363d]",
+  "bg-[#4493f8] text-white",
+  "bg-[#da3633] text-white",
+  "bg-[#0d1117] text-[#e6edf3] border border-[#30363d]",
 ]);
 
 export const METRO_LABELS: readonly string[] = Object.freeze([

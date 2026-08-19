@@ -93,20 +93,20 @@ export const VirtualScrollStream: React.FC<VirtualScrollStreamProps> = ({
       onScroll={handleScroll}
       onDragStart={(e) => e.preventDefault()}
       onDrop={(e) => e.preventDefault()}
-      className="relative w-full h-full overflow-y-auto overflow-x-hidden bg-[#2d2d2d] text-[#eeeeec] focus:outline-none"
+      className="relative w-full h-full overflow-y-auto overflow-x-hidden bg-[#000000] text-[#e6edf3] focus:outline-none"
       tabIndex={0}
       contentEditable={false}
-      aria-readonly="true"
+      
       data-locked="true"
       style={{
         scrollbarWidth: "thin",
-        scrollbarColor: "rgb(76, 76, 76) rgb(45, 45, 45)",
+        scrollbarColor: "rgb(48, 54, 61) rgb(0, 0, 0)",
       }}
     >
       <div
         className="max-w-3xl mx-auto px-8 py-16"
         contentEditable={false}
-        aria-readonly="true"
+        
         data-locked="true"
       >
         {pages.map((page, pageIdx) => (
@@ -118,9 +118,9 @@ export const VirtualScrollStream: React.FC<VirtualScrollStreamProps> = ({
                   key={idx}
                   id={`p-${idx}`}
                   contentEditable={false}
-                  aria-readonly="true"
+                  
                   data-locked="true"
-                  className="text-lg leading-relaxed text-[#eeeeec] font-serif mb-8 text-justify antialiased select-text"
+                  className="text-lg leading-relaxed text-[#e6edf3] font-mona mb-8 text-justify antialiased select-text"
                 >
                   {text}
                 </p>

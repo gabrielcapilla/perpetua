@@ -78,7 +78,7 @@ export const FpsCounter: React.FC = () => {
       onClick={() => setIsFolded((prev) => !prev)}
       data-locked="true"
       contentEditable={false}
-      aria-readonly="true"
+      
       aria-expanded={!isFolded}
       aria-label="Toggle FPS and Frame Time display"
       title={
@@ -86,25 +86,25 @@ export const FpsCounter: React.FC = () => {
           ? `FPS ${fpsData.fps} · ${fpsData.frameTime} ms · build ${APP_BUILD}`
           : `Click to unfold FPS monitor (measuring…) · build ${APP_BUILD}`
       }
-      className="fixed bottom-4 right-6 z-50 flex items-center justify-center rounded-md bg-[#353535]/90 hover:bg-[#3d3d3d] active:scale-95 transition-all duration-150 backdrop-blur-sm border border-[#4c4c4c] shadow-lg font-mono text-xs select-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#3e8ae5]"
+      className="flex items-center justify-center rounded-md bg-[#161b22] hover:bg-[#21262d] active:scale-95 transition-all duration-150 border border-[#30363d] shadow-lg font-mono text-xs select-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#1f6feb]"
     >
       {isFolded ? (
-        <span className="px-2.5 py-1 text-[#919190] hover:text-[#eeeeec] font-semibold text-[11px] tracking-wider uppercase">
+        <span className="px-2.5 py-1.5 text-[#9198a1] hover:text-[#e6edf3] font-semibold text-[11px] tracking-wider uppercase">
           FPS
         </span>
       ) : (
         <div className="flex items-center gap-2 px-3 py-1.5">
           <div className="flex items-baseline gap-1">
-            <span className="font-bold text-[#eeeeec] min-w-[24px] text-right">
+            <span className="font-semibold text-[#e6edf3] min-w-[24px] text-right">
               {fpsData.live ? fpsData.fps : "–"}
             </span>
-            <span className="text-[#919190] text-[11px]">FPS</span>
+            <span className="text-[#9198a1] text-[11px]">FPS</span>
           </div>
 
-          <div className="h-3 w-[1px] bg-[#4c4c4c]" />
+          <div className="h-3 w-[1px] bg-[#30363d]" />
 
-          <div className="text-[#919190] text-[11px]">
-            <span className="text-[#eeeeec] font-medium">
+          <div className="text-[#9198a1] text-[11px]">
+            <span className="text-[#e6edf3] font-medium">
               {fpsData.live ? fpsData.frameTime : "–"}
             </span>
             <span>ms</span>
