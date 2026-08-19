@@ -59,6 +59,7 @@ let scratchWindowToggle = 0;
 interface RowWindow {
   start: number;
   end: number;
+  cols: number;
 }
 
 export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
@@ -71,7 +72,7 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
   const totalRef = useRef<number>(INITIAL_TOTAL);
   const colsRef = useRef<number>(6);
   const isGeneratingRef = useRef<boolean>(false);
-  const [win, setWin] = useState<RowWindow>({ start: 0, end: 0 });
+  const [win, setWin] = useState<RowWindow>({ start: 0, end: 0, cols: 6 });
   const [cubes, setCubes] = useState<Uint32Array>(() => {
     const buf = SCRATCH_WINDOW_POOL[scratchWindowToggle];
     scratchWindowToggle ^= 1;
@@ -134,9 +135,15 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
 
     const start = SCRATCH_LAYOUT[LAYOUT_START];
     const end = SCRATCH_LAYOUT[LAYOUT_END];
-    if (start === current.start && end === current.end) return;
+    if (
+      start === current.start &&
+      end === current.end &&
+      colsRef.current === current.cols
+    ) {
+      return;
+    }
 
-    const next = { start, end };
+    const next = { start, end, cols: colsRef.current };
     winRef.current = next;
     setWin(next);
     setCubes(decodeRowRange(start, end));
@@ -197,7 +204,7 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
   const breaks = rowBreaksRef.current as number[];
   const firstCube = win.start < breaks.length ? breaks[win.start] : 0;
   const visibleRows = Math.max(1, win.end - win.start);
-  const gridCols = GRID_COLS_CLASSES[colsRef.current] || "grid-cols-2";
+  const gridCols = GRID_COLS_CLASSES[win.cols] || "grid-cols-2";
 
   return (
     <div
@@ -257,7 +264,7 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
 
                     const colorIdx = packedMeta & 0xff;
                     const labelIdx = (packedMeta >>> 16) & 0xff;
-                    const span = cubeSpan(idx, rowCol, colsRef.current);
+                    const span = cubeSpan(idx, rowCol, win.cols);
                     rowCol += span;
 
                     rowCubes.push(

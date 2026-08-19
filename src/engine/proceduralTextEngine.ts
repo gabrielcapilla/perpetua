@@ -1,5 +1,4 @@
 import {
-  PARA_METRIC_ACCENT_TYPE,
   PARA_METRIC_BUFFER_SIZE,
   PARA_METRIC_SEED,
   PARA_METRIC_SENTENCE_COUNT,
@@ -216,9 +215,11 @@ export const VOCAB_BY_MODE: readonly (readonly string[])[] = Object.freeze([
   VOCABULARY_PHILOSOPHY,
 ]);
 
-export const ACCENT_TYPE_TABLE = new Uint8Array(100);
-for (let i = 0; i < ACCENT_TYPE_TABLE.length; i++) {
-  ACCENT_TYPE_TABLE[i] = i < 10 ? 1 : i < 18 ? 2 : 0;
+const TOKEN_INDEX_CAPACITY = 1 << 10;
+for (const vocab of VOCAB_BY_MODE) {
+  if (vocab.length === 0 || vocab.length > TOKEN_INDEX_CAPACITY) {
+    throw new Error("vocabulary outside 10-bit token field capacity");
+  }
 }
 
 export function estimateParagraphHeight(
@@ -243,17 +244,22 @@ export function computeParagraphMetrics(
   paraIndex: number,
   outBuffer: Uint32Array,
 ): void {
+  if (outBuffer.length < PARA_METRIC_BUFFER_SIZE) {
+    throw new RangeError("metrics buffer smaller than PARA_METRIC_BUFFER_SIZE");
+  }
   let h = (paraIndex ^ 0xdeadbeef) >>> 0;
   h = Math.imul(h ^ (h >>> 16), 0x85ebca6b) >>> 0;
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0;
   h = (h ^ (h >>> 16)) >>> 0;
 
   outBuffer[PARA_METRIC_SEED] = h;
-  outBuffer[PARA_METRIC_SENTENCE_COUNT] = 3 + (h % 6);
   outBuffer[PARA_METRIC_WORD_COUNT] = 40 + ((h >>> 8) % 70);
 
-  const accentProb = (h >>> 16) % 100;
-  outBuffer[PARA_METRIC_ACCENT_TYPE] = ACCENT_TYPE_TABLE[accentProb];
+  const sentenceTarget = 7 + (h % 10);
+  const sentenceCount = Math.ceil(
+    outBuffer[PARA_METRIC_WORD_COUNT] / sentenceTarget,
+  );
+  outBuffer[PARA_METRIC_SENTENCE_COUNT] = sentenceCount;
 }
 
 export function generateParagraphTokenSequence(
@@ -267,15 +273,17 @@ export function generateParagraphTokenSequence(
   const wordCount = SCRATCH_METRICS[PARA_METRIC_WORD_COUNT];
   const vocabLength = VOCAB_BY_MODE[styleMode].length;
 
+  if (targetTokenBuffer.length < wordCount) {
+    throw new RangeError(
+      "token buffer smaller than paragraph wordCount (silent truncation is impossible)",
+    );
+  }
+
   let tokensWritten = 0;
   let wordsInCurrentSentence = 0;
   const sentenceTarget = 7 + (prng % 10);
 
-  for (
-    let i = 0;
-    i < wordCount && tokensWritten < targetTokenBuffer.length;
-    i++
-  ) {
+  for (let i = 0; i < wordCount; i++) {
     prng = xorShift32(prng);
     const tokenIndex = (prng % vocabLength) & 0x03ff;
 

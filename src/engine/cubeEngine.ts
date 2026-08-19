@@ -33,11 +33,23 @@ export const METRO_LABELS: readonly string[] = Object.freeze([
   "CONTIGUOUS_MEM",
 ]);
 
+const PACKED_U8_CAPACITY = 1 << 8;
+if (METRO_COLOR_CLASSES.length === 0 || METRO_COLOR_CLASSES.length > PACKED_U8_CAPACITY) {
+  throw new Error("cube colors outside 8-bit packedMeta field capacity");
+}
+if (METRO_LABELS.length === 0 || METRO_LABELS.length > PACKED_U8_CAPACITY) {
+  throw new Error("cube labels outside 8-bit packedMeta field capacity");
+}
+
 export function generateCubeBuffer(
   startIndex: number,
   count: number,
   targetBuffer: Uint32Array,
 ): void {
+  const requiredWords = count * CUBE_STRIDE_WORDS;
+  if (count <= 0 || targetBuffer.length < requiredWords) {
+    throw new RangeError("cube buffer smaller than count * CUBE_STRIDE_WORDS");
+  }
   const colorCount = METRO_COLOR_CLASSES.length;
   const labelCount = METRO_LABELS.length;
 

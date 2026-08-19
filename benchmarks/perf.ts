@@ -16,6 +16,7 @@ import {
   CUBE_FIELD_VALUE,
   CUBE_FIELD_PACKED_META,
   CUBE_FIELD_INDEX,
+  PARA_METRIC_SENTENCE_COUNT,
   TextStyleMode,
 } from "../src/types";
 import {
@@ -32,20 +33,24 @@ import {
 
 const gc: () => void = (globalThis as { gc?: () => void }).gc ?? (() => {});
 
-function bench(name: string, iters: number, fn: () => void): void {
-  for (let i = 0; i < Math.min(iters, 10000); i++) fn();
+let benchSink = 0;
+
+function bench(name: string, iters: number, fn: (i: number) => number): void {
+  for (let i = 0; i < Math.min(iters, 10000); i++) benchSink ^= fn(i);
   const samples: number[] = [];
   for (let s = 0; s < 3; s++) {
     const t0 = process.hrtime.bigint();
-    for (let i = 0; i < iters; i++) fn();
+    for (let i = 0; i < iters; i++) benchSink ^= fn(i);
     const t1 = process.hrtime.bigint();
     samples.push(Number(t1 - t0) / 1e6);
   }
   samples.sort((a, b) => a - b);
-  const ms = samples[0];
-  const opsPerSec = (iters / ms) * 1000;
+  const minMs = samples[0];
+  const medMs = samples[1];
+  const opsPerSecMin = (iters / minMs) * 1000;
+  const opsPerSecMed = (iters / medMs) * 1000;
   console.log(
-    `${name.padEnd(52)} ${String(iters).padStart(9)} iters  ${ms.toFixed(1).padStart(8)} ms  ${Math.round(opsPerSec).toLocaleString("en-US").padStart(12)} ops/s`,
+    `${name.padEnd(52)} ${String(iters).padStart(9)} iters  min ${minMs.toFixed(1).padStart(7)} ms (${Math.round(opsPerSecMin).toLocaleString("en-US").padStart(12)} ops/s)  med ${medMs.toFixed(1).padStart(7)} ms (${Math.round(opsPerSecMed).toLocaleString("en-US").padStart(12)} ops/s)`,
   );
 }
 
@@ -102,6 +107,8 @@ const synthHeights: number[] = [];
     synthHeights.push(120 + (rng % 480));
   }
 }
+const synthTotalHeight = sumHeights(synthHeights, 0, 5000);
+const synthAnchorOffset1000 = sumHeights(synthHeights, 0, 1000);
 
 const tokenCount = generateParagraphTokenSequence(
   12345,
@@ -115,24 +122,26 @@ const sampleText = decodeTokensToParagraphText(
 );
 
 if (!process.argv.includes("--profile-heavy")) {
-  console.log("=== ENGINE THROUGHPUT (best of 3, V8 JIT-warmed) ===");
-  bench("xorShift32", 10_000_000, () => xorShift32(0x9e3779b9));
-  bench("computeParagraphMetrics", 2_000_000, () =>
-    computeParagraphMetrics(42, scratchMetrics),
-  );
+  console.log("=== ENGINE THROUGHPUT (min + median of 3, V8 JIT-warmed, observable sinks) ===");
+  bench("xorShift32", 10_000_000, (i) => xorShift32(i));
+  bench("computeParagraphMetrics", 2_000_000, (i) => {
+    computeParagraphMetrics(i, scratchMetrics);
+    return scratchMetrics[0] ^ scratchMetrics[1];
+  });
   for (const mode of [
     TextStyleMode.CLASSIC_LOREM,
     TextStyleMode.SCIENTIFIC_PHYSICS,
     TextStyleMode.BINARY_KERNEL_LOG,
     TextStyleMode.PHILOSOPHICAL_ESSAY,
   ]) {
-    bench(`generateParagraphTokenSequence mode=${mode}`, 500_000, () =>
-      generateParagraphTokenSequence(12345, mode, scratchTokens),
+    bench(`generateParagraphTokenSequence mode=${mode}`, 500_000, (i) =>
+      generateParagraphTokenSequence(i, mode, scratchTokens),
     );
   }
-  bench("generateCubeBuffer batch=60", 500_000, () =>
-    generateCubeBuffer(1000, 60, scratchCubes),
-  );
+  bench("generateCubeBuffer batch=60", 500_000, (i) => {
+    generateCubeBuffer(i, 60, scratchCubes);
+    return scratchCubes[0];
+  });
 
   console.log(
     `sample paragraph: ${sampleText.length} chars, ${tokenCount} tokens`,
@@ -143,31 +152,46 @@ if (!process.argv.includes("--profile-heavy")) {
       scratchTokens,
       tokenCount,
       TextStyleMode.CLASSIC_LOREM,
-    ),
+    ).length,
   );
-  bench("deriveCubeMetrics batch=60 (numeric window path)", 200_000, () =>
-    deriveCubeMetrics(scratchCubes, 60, scratchDerived),
-  );
+  bench("deriveCubeMetrics batch=60 (numeric window path)", 200_000, () => {
+    deriveCubeMetrics(scratchCubes, 60, scratchDerived);
+    return scratchDerived[0];
+  });
   bench(
-    "computeTextWindow window=24/overscan=6 (incremental hint)",
+    "computeTextWindow window=24/overscan=6 (incremental hint, in-range)",
     500_000,
-    () => {
+    (i) => {
+      const scrollTop = (i * 1913) % synthTotalHeight;
       computeTextWindow(
-        sumHeights(synthHeights, 0, 1000) + 100,
+        scrollTop,
         64,
         synthHeights,
         5000,
         24,
         6,
         1000,
-        sumHeights(synthHeights, 0, 1000),
+        synthAnchorOffset1000,
         scratchLayout,
+      );
+      return (
+        scratchLayout[LAYOUT_START] ^
+        scratchLayout[LAYOUT_END] ^
+        scratchLayout[LAYOUT_FIRST_VISIBLE] ^
+        scratchLayout[LAYOUT_START_OFFSET]
       );
     },
   );
-  bench("computeCubeWindow rows=90/rowHeight=152 (O(1))", 5_000_000, () =>
-    computeCubeWindow(123456, 760, 90, 152, 32, 2, scratchLayout),
-  );
+  bench("computeCubeWindow rows=90/rowHeight=152 (O(1), in-range)", 5_000_000, (i) => {
+    computeCubeWindow((i * 997) % (90 * 152), 760, 90, 152, 32, 2, scratchLayout);
+    return (
+      scratchLayout[LAYOUT_START] ^
+      scratchLayout[LAYOUT_END] ^
+      scratchLayout[LAYOUT_FIRST_VISIBLE] ^
+      scratchLayout[LAYOUT_START_OFFSET]
+    );
+  });
+  console.log(`bench sink: ${benchSink}`);
 }
 
 if (process.argv.includes("--alloc")) {
@@ -327,6 +351,34 @@ if (process.argv.includes("--verify")) {
   console.log(
     `max tokens observed across 1M paragraphs (scratch capacity 512): ${maxTokens}`,
   );
+
+  let sentenceMismatches = 0;
+  for (let i = 0; i < 100_000; i++) {
+    computeParagraphMetrics(i, scratchMetrics);
+    const n = generateParagraphTokenSequence(
+      i,
+      TextStyleMode.CLASSIC_LOREM,
+      scratchTokens,
+    );
+    let periods = 0;
+    for (let t = 0; t < n; t++) {
+      if (scratchTokens[t] & 0x1000) periods++;
+    }
+    if (periods !== scratchMetrics[PARA_METRIC_SENTENCE_COUNT]) {
+      sentenceMismatches++;
+      if (sentenceMismatches <= 3) {
+        console.log(
+          `sentenceCount mismatch i=${i}: metric=${scratchMetrics[PARA_METRIC_SENTENCE_COUNT]} actual=${periods}`,
+        );
+      }
+    }
+  }
+  if (sentenceMismatches > 0) {
+    throw new Error(
+      `sentenceCount disagrees with period flags in ${sentenceMismatches}/100000 paragraphs`,
+    );
+  }
+  console.log("sentenceCount truthful across 100k paragraphs: 0 mismatches");
 
   console.log("\n--- VIRTUALIZATION INVARIANTS ---");
   {

@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import {
-  ACCENT_TYPE_TABLE,
   VOCAB_BY_MODE,
   computeParagraphMetrics,
   decodeTokensToParagraphText,
@@ -9,7 +8,6 @@ import {
 import { cubeSpan, extendRowBreaks } from "../src/engine/cubeEngine";
 import { estimateCharsPerLine } from "../src/engine/virtualizationEngine";
 import {
-  PARA_METRIC_ACCENT_TYPE,
   PARA_METRIC_BUFFER_SIZE,
   PARA_METRIC_SEED,
   PARA_METRIC_SENTENCE_COUNT,
@@ -17,7 +15,7 @@ import {
   TextStyleMode,
 } from "../src/types";
 
-const GOLDEN_HASH = "e2e875a944bb0a1c4af3a1100b7f7492894aba6ce477c409f3f95069e8db925c";
+const GOLDEN_HASH = "db5fc37fb604a88afdd1e22a4fb7f4ca48486f0169b2ae07b1c1bc22025a649c";
 
 const sha = createHash("sha256");
 const u32 = new DataView(new ArrayBuffer(4));
@@ -58,7 +56,6 @@ for (let i = 0; i < METRICS_N; i++) {
   feedU32(SCRATCH_METRICS[PARA_METRIC_SEED]);
   feedU32(SCRATCH_METRICS[PARA_METRIC_WORD_COUNT]);
   feedU32(SCRATCH_METRICS[PARA_METRIC_SENTENCE_COUNT]);
-  feedU32(SCRATCH_METRICS[PARA_METRIC_ACCENT_TYPE]);
 }
 
 const SPAN_COLS = [2, 3, 4, 6] as const;
@@ -71,13 +68,6 @@ for (const cols of SPAN_COLS) {
   }
 }
 
-feedBytes(
-  new Uint8Array(
-    ACCENT_TYPE_TABLE.buffer,
-    ACCENT_TYPE_TABLE.byteOffset,
-    ACCENT_TYPE_TABLE.byteLength,
-  ),
-);
 for (const vocab of VOCAB_BY_MODE) feedU32(vocab.length);
 for (let w = 240; w <= 1920; w += 137) feedU32(estimateCharsPerLine(w));
 

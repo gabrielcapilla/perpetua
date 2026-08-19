@@ -19,7 +19,6 @@ export const CUBE_FIELD_INDEX = 3;
 export const PARA_METRIC_SEED = 0;
 export const PARA_METRIC_WORD_COUNT = 1;
 export const PARA_METRIC_SENTENCE_COUNT = 2;
-export const PARA_METRIC_ACCENT_TYPE = 3;
-export const PARA_METRIC_BUFFER_SIZE = 4;
+export const PARA_METRIC_BUFFER_SIZE = 3;
 
-export const APP_BUILD = "2026-08-19-v7";
+export const APP_BUILD = "2026-08-19-cs001";
