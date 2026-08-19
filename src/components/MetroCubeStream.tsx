@@ -49,6 +49,12 @@ const GRID_COLS_CLASSES: readonly string[] = Object.freeze([
 ]);
 
 const SCRATCH_LAYOUT = new Float64Array(LAYOUT_FIELD_COUNT);
+const MAX_WINDOW_CUBES = 512;
+const SCRATCH_WINDOW_POOL: readonly Uint32Array[] = [
+  new Uint32Array(MAX_WINDOW_CUBES * CUBE_STRIDE_WORDS),
+  new Uint32Array(MAX_WINDOW_CUBES * CUBE_STRIDE_WORDS),
+];
+let scratchWindowToggle = 0;
 
 interface RowWindow {
   start: number;
@@ -67,7 +73,8 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
   const isGeneratingRef = useRef<boolean>(false);
   const [win, setWin] = useState<RowWindow>({ start: 0, end: 0 });
   const [cubes, setCubes] = useState<Uint32Array>(() => {
-    const buf = new Uint32Array(INITIAL_TOTAL * CUBE_STRIDE_WORDS);
+    const buf = SCRATCH_WINDOW_POOL[scratchWindowToggle];
+    scratchWindowToggle ^= 1;
     generateCubeBuffer(0, INITIAL_TOTAL, buf);
     return buf;
   });
@@ -95,7 +102,13 @@ export const MetroCubeStream: React.FC<MetroCubeStreamProps> = () => {
       const firstCube = breaks[fromRow];
       const lastCube = toRow < breaks.length ? breaks[toRow] : totalRef.current;
       const count = lastCube - firstCube;
-      const buf = new Uint32Array(count * CUBE_STRIDE_WORDS);
+      if (count > MAX_WINDOW_CUBES) {
+        const buf = new Uint32Array(count * CUBE_STRIDE_WORDS);
+        generateCubeBuffer(firstCube, count, buf);
+        return buf;
+      }
+      const buf = SCRATCH_WINDOW_POOL[scratchWindowToggle];
+      scratchWindowToggle ^= 1;
       generateCubeBuffer(firstCube, count, buf);
       return buf;
     },
