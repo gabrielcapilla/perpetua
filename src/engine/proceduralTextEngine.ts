@@ -216,7 +216,7 @@ export const VOCAB_BY_MODE: readonly (readonly string[])[] = Object.freeze([
   VOCABULARY_PHILOSOPHY,
 ]);
 
-const ACCENT_TYPE_TABLE = new Uint8Array(100);
+export const ACCENT_TYPE_TABLE = new Uint8Array(100);
 for (let i = 0; i < ACCENT_TYPE_TABLE.length; i++) {
   ACCENT_TYPE_TABLE[i] = i < 10 ? 1 : i < 18 ? 2 : 0;
 }

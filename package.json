@@ -1,5 +1,5 @@
 {
-  "name": "react-example",
+  "name": "perpetua",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,6 +13,7 @@
     "bench": "tsx benchmarks/perf.ts",
     "bench:alloc": "NODE_OPTIONS=--expose-gc tsx benchmarks/perf.ts --alloc --session",
     "bench:verify": "tsx benchmarks/perf.ts --verify",
+    "bench:golden": "tsx benchmarks/golden.ts",
     "bench:profile": "node --import tsx --cpu-prof --cpu-prof-dir=/tmp/perpetua-prof --trace-gc benchmarks/perf.ts --profile-heavy"
   },
   "dependencies": {

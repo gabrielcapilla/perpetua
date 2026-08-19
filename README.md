@@ -30,9 +30,10 @@ npm run preview    # preview the production build
 | `npm run build`         | Production build → `dist/`                                    |
 | `npm run preview`       | Preview the build                                             |
 | `npm run clean`         | Remove `dist/`                                                |
-| `npm run bench`         | Throughput benchmarks                                         |
-| `npm run bench:verify`  | Determinism + layout invariant checks                         |
-| `npm run bench:alloc`   | Allocation and memory baselines                               |
+| `npm run bench` | Throughput benchmarks |
+| `npm run bench:verify` | Determinism + layout invariant checks |
+| `npm run bench:golden` | Byte-identity gate: SHA-256 of engine outputs vs committed hash |
+| `npm run bench:alloc` | Allocation and memory baselines |
 | `npm run bench:profile` | V8 `--cpu-prof`/`--trace-gc` workload → `/tmp/perpetua-prof/` |
 
 Benchmark harness lives in `benchmarks/perf.ts`; numbers and methodology in `PERF.md`.

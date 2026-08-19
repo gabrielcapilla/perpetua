@@ -26,41 +26,10 @@ export const FpsCounter: React.FC = () => {
   const lastDisplayUpdateRef = useRef<number>(performance.now());
   const rafIdRef = useRef<number>(0);
 
-  const DIAG_WINDOW_MS = 5000;
-  const DIAG_BUCKET_MS = 1000;
-  let diagRaw: number[] | null = [];
-  let diagStart = 0;
-  let diagBucketStart = 0;
-  let diagBucketFrames = 0;
-  let diagBuckets: number[] = [];
-
   useEffect(() => {
     const loop = (timestamp: number) => {
       const delta = timestamp - lastTimestampRef.current;
       lastTimestampRef.current = timestamp;
-
-      if (diagRaw) {
-        if (diagRaw.length < 20) diagRaw.push(delta);
-        if (diagStart === 0) {
-          diagStart = timestamp;
-          diagBucketStart = timestamp;
-        }
-        diagBucketFrames++;
-        if (timestamp - diagBucketStart >= DIAG_BUCKET_MS) {
-          diagBuckets.push(diagBucketFrames);
-          diagBucketFrames = 0;
-          diagBucketStart = timestamp;
-        }
-        if (timestamp - diagStart >= DIAG_WINDOW_MS) {
-          diagBuckets.push(diagBucketFrames);
-          console.log(
-            `[fps-diag] ua="${navigator.userAgent}" vis=${document.visibilityState} ` +
-              `first20(ms)=[${diagRaw.map((d) => d.toFixed(1)).join(", ")}] ` +
-              `framesPerSec=[${diagBuckets.join(", ")}]`,
-          );
-          diagRaw = null;
-        }
-      }
 
       if (delta > 0) {
         const buf = frameTimesRef.current as Float32Array;
